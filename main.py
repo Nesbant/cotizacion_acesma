@@ -5,34 +5,42 @@ import os
 from datetime import datetime
 import time
 from pdf_generator import generar_cotizacion_pdf
+from dotenv import load_dotenv
+
+load_dotenv()  # Cargar variables de entorno desde .env
+
+# Usar variables de entorno
+SECRET_KEY = os.getenv('SECRET_KEY', 'default_value')
+
+# Configuración de variables de entorno
+PORT = int(os.getenv("PORT", 8501))
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 def load_cotizaciones():
-    if os.path.exists("cotizaciones.json"):
-        try:
+    try:
+        if os.path.exists("cotizaciones.json"):
             with open("cotizaciones.json", "r") as file:
                 return json.load(file)
-        except json.JSONDecodeError:
-            return []
+    except Exception as e:
+        st.error(f"Error al cargar cotizaciones: {str(e)}")
     return []
 
 def save_cotizacion(datos_cliente, productos):
-    cotizaciones = load_cotizaciones()
-    
-    cotizacion = {
-        "id": len(cotizaciones) + 1,
-        "fecha": datetime.now().strftime("%d/%m/%Y"),
-        "datos del cliente": datos_cliente,
-        "productos": productos
-    }
-    
-    cotizaciones.append(cotizacion)
-    
     try:
+        cotizaciones = load_cotizaciones()
+        cotizacion = {
+            "id": len(cotizaciones) + 1,
+            "fecha": datetime.now().strftime("%d/%m/%Y"),
+            "datos del cliente": datos_cliente,
+            "productos": productos
+        }
+        cotizaciones.append(cotizacion)
+        
         with open("cotizaciones.json", "w") as file:
             json.dump(cotizaciones, file, indent=4)
         return cotizacion
     except Exception as e:
-        st.error(f"Error al guardar la cotización: {str(e)}")
+        st.error(f"Error al guardar cotización: {str(e)}")
         return None
 
 def main():
@@ -40,7 +48,11 @@ def main():
     if not os.path.exists("pdfs"):
         os.makedirs("pdfs")
         
-    st.set_page_config(page_title="Sistema de Cotizaciones ACESMA INOX", layout="wide")
+    st.set_page_config(
+        page_title="Sistema de Cotizaciones ACESMA INOX",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
     
     st.title("Sistema de Cotizaciones ACESMA INOX")
     
@@ -154,4 +166,7 @@ def main():
                             st.error(f"Error al generar el PDF: {str(e)}")
 
 if __name__ == "__main__":
-    main()       
+    try:
+        main()
+    except Exception as e:
+        st.error(f"Error en la aplicación: {str(e)}")       
