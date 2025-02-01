@@ -2,6 +2,7 @@ import streamlit as st
 from cotizaciones import addCotizaciones, mostrarCotizaciones, generarPDF
 import json
 import os
+import subprocess
 from datetime import datetime
 from pdf_generator import generar_cotizacion_pdf
 from dotenv import load_dotenv
@@ -174,7 +175,5 @@ def main():
                             st.error(f"Error al generar el PDF: {str(e)}")
 
 if __name__ == "__main__":
-    try:
-        os.system(f"streamlit run main.py --server.port {PORT} --server.address 0.0.0.0")
-    except Exception as e:
-        st.error(f"Error en la aplicación: {str(e)}")
+    PORT = int(os.getenv("PORT", 8501))
+    subprocess.run(["streamlit", "run", "main.py", "--server.port", str(PORT), "--server.address", "0.0.0.0"])
