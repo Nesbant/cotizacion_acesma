@@ -2,48 +2,36 @@ import streamlit as st
 from cotizaciones import addCotizaciones, mostrarCotizaciones, generarPDF
 import json
 import os
-import subprocess
 from datetime import datetime
 from pdf_generator import generar_cotizacion_pdf
-from dotenv import load_dotenv
 
-# Cargar variables de entorno desde .env
-load_dotenv()
-
-# Configuración de variables de entorno
-PORT = int(os.getenv("PORT", 8501))  # Puerto para Railway
-DEBUG = os.getenv("DEBUG", "false").lower() == "true"
-
+# Definir el archivo donde se guardarán las cotizaciones
 COTIZACIONES_FILE = "cotizaciones.json"
 
 def load_cotizaciones():
     """Carga las cotizaciones desde un archivo JSON."""
-    try:
-        if os.path.exists(COTIZACIONES_FILE):
+    if os.path.exists(COTIZACIONES_FILE):
+        try:
             with open(COTIZACIONES_FILE, "r") as file:
                 return json.load(file)
-    except json.JSONDecodeError:
-        return []  # Retorna lista vacía si hay un error en el JSON
+        except json.JSONDecodeError:
+            return []  # Retorna lista vacía si hay un error en el JSON
     return []
 
 def save_cotizacion(datos_cliente, productos):
     """Guarda una nueva cotización en el JSON."""
-    try:
-        cotizaciones = load_cotizaciones()
-        cotizacion = {
-            "id": len(cotizaciones) + 1,
-            "fecha": datetime.now().strftime("%d/%m/%Y"),
-            "datos del cliente": datos_cliente,
-            "productos": productos
-        }
-        cotizaciones.append(cotizacion)
+    cotizaciones = load_cotizaciones()
+    cotizacion = {
+        "id": len(cotizaciones) + 1,
+        "fecha": datetime.now().strftime("%d/%m/%Y"),
+        "datos del cliente": datos_cliente,
+        "productos": productos
+    }
+    cotizaciones.append(cotizacion)
 
-        with open(COTIZACIONES_FILE, "w") as file:
-            json.dump(cotizaciones, file, indent=4)
-        return cotizacion
-    except Exception as e:
-        st.error(f"Error al guardar cotización: {str(e)}")
-        return None
+    with open(COTIZACIONES_FILE, "w") as file:
+        json.dump(cotizaciones, file, indent=4)
+    return cotizacion
 
 def main():
     """Función principal de la aplicación."""
@@ -175,5 +163,4 @@ def main():
                             st.error(f"Error al generar el PDF: {str(e)}")
 
 if __name__ == "__main__":
-    PORT = int(os.getenv("PORT", 8501))
-    subprocess.run(["streamlit", "run", "main.py", "--server.port", str(PORT), "--server.address", "0.0.0.0"])
+    main()  # Llamar a la función principal sin usar subprocess
