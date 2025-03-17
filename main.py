@@ -1,5 +1,4 @@
 import streamlit as st
-from cotizaciones import addCotizaciones, mostrarCotizaciones, generarPDF
 import json
 import os
 from datetime import datetime
@@ -22,7 +21,7 @@ def save_cotizacion(datos_cliente, productos):
     """Guarda una nueva cotización en el JSON."""
     cotizaciones = load_cotizaciones()
     cotizacion = {
-        "id": len(cotizaciones) + 1,
+        "id": 1500 + len(cotizaciones),
         "fecha": datetime.now().strftime("%d/%m/%Y"),
         "datos del cliente": datos_cliente,
         "productos": productos
